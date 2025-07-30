@@ -1,32 +1,51 @@
 # imports
+import os
 import copy
 import random
 import pygame
 
 # game variables
 pygame.init()
-### cards
-cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-one_deck = 4 * cards
-decks = 4
-
-game_denk = copy.deepcopy(decks * one_deck)
-# print(game_denk)
+pygame.font.init()
+# ## geluid
+# pygame.mixer.init()
 
 ### display
 # originally width 600, height 900
+# WIDTH = 600
+# HEIGHT = 900
+
 # adjust for use of dynamic screens
-WIDTH = 600
-HEIGHT = 900
-screen = pygame.display.set_mode([ WIDTH, HEIGHT])
+### screen
+VIRTUAL_WIDTH = 600
+VIRTUAL_HEIGHT = 900
+
+screen = pygame.display.set_mode((VIRTUAL_WIDTH, VIRTUAL_HEIGHT), pygame.RESIZABLE)
+
     # check name with client
-pygame.display.set_caption("Pygame Blackjack!")         
+pygame.display.set_caption("Pygame Blackjack!")
+
+virtual_surface = pygame.Surface((VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
+
 fps = 60
 timer = pygame.time.Clock()
-pygame.font.init()
-    # check font with client
+
+### background
+background = pygame.image.load("assets/game_design/background.png").convert()
+background = pygame.transform.scale(background, (VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
+
+### fonts
 font = pygame.font.Font('freesansbold.ttf', 44)
 smaller_font = pygame.font.Font('freesansbold.ttf', 36)
+
+### cards
+
+# cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+# one_deck = 4 * cards
+# decks = 4
+
+# game_deck = copy.deepcopy(decks * one_deck)
+
 
 active = False
 # win, loss, draw/push
@@ -55,32 +74,32 @@ def deal_cards(current_hand, current_deck):
 # draw scores for player and dealer on screen
 #  check visuals with client
 def draw_scores(player, dealer):
-    screen.blit(font.render(f'Score[{player}]', True, 'white'), (350, 400))
+    virtual_surface.blit(font.render(f'Score[{player}]', True, 'white'), (350, 400))
     if reveal_dealer:
-        screen.blit(font.render(f'Score[{dealer}]', True, 'white'), (350, 100))
+        virtual_surface.blit(font.render(f'Score[{dealer}]', True, 'white'), (350, 100))
 
 
 # draw cards visually onto screen
 def draw_cards(player, dealer, reveal):
     for i in range(len(player)):
         # check visuals with client
-        pygame.draw.rect(screen, 'white', [70 + (70 * i), 460 + (5 * i), 120, 220], 0, 5)
-        screen.blit(font.render(player[i], True, 'black'), (75 + 70 * i, 465 + 5 * i))
-        screen.blit(font.render(player[i], True, 'black'), (75 + 70 * i, 635 + 5 * i))
-        pygame.draw.rect(screen, 'red', [70 + (70 * i), 460 + (5 * i), 120, 220], 5, 5)
+        pygame.draw.rect(virtual_surface, 'white', [70 + (70 * i), 460 + (5 * i), 120, 220], 0, 5)
+        virtual_surface.blit(font.render(player[i], True, 'black'), (75 + 70 * i, 465 + 5 * i))
+        virtual_surface.blit(font.render(player[i], True, 'black'), (75 + 70 * i, 635 + 5 * i))
+        pygame.draw.rect(virtual_surface, 'red', [70 + (70 * i), 460 + (5 * i), 120, 220], 5, 5)
 
     # if player hasn't finished turn, dealer will hide one card
     for i in range(len(dealer)):
         # check visuals with client
-        pygame.draw.rect(screen, 'white', [70 + (70 * i), 160 + (5 * i), 120, 220], 0, 5)
+        pygame.draw.rect(virtual_surface, 'white', [70 + (70 * i), 160 + (5 * i), 120, 220], 0, 5)
         if i != 0 or reveal:
-            screen.blit(font.render(dealer[i], True, 'black'), (75 + 70 * i, 165 + 5 * i))
-            screen.blit(font.render(dealer[i], True, 'black'), (75 + 70 * i, 335 + 5 * i))
+            virtual_surface.blit(font.render(dealer[i], True, 'black'), (75 + 70 * i, 165 + 5 * i))
+            virtual_surface.blit(font.render(dealer[i], True, 'black'), (75 + 70 * i, 335 + 5 * i))
         else:
             # do or do not use '???', check with client
-            screen.blit(font.render('???', True, 'black'), (75 + 70 * i, 165 + 5 * i))
-            screen.blit(font.render('???', True, 'black'), (75 + 70 * i, 335 + 5 * i))
-        pygame.draw.rect(screen, 'blue', [70 + (70 * i), 160 + (5 * i), 120, 220], 5, 5)
+            virtual_surface.blit(font.render('???', True, 'black'), (75 + 70 * i, 165 + 5 * i))
+            virtual_surface.blit(font.render('???', True, 'black'), (75 + 70 * i, 335 + 5 * i))
+        pygame.draw.rect(virtual_surface, 'blue', [70 + (70 * i), 160 + (5 * i), 120, 220], 5, 5)
 
 # pass in player or dealer hand and get best score possible
 def calculate_score(hand):
@@ -111,37 +130,37 @@ def draw_game(act, record, result):
     # initially on startup (not active) only option is to deal new hand
         ### check details with client (button size, colour, font etc)
     if not act:
-        deal = pygame.draw.rect(screen, 'white', [150, 20, 300, 100], 0, 5)
-        pygame.draw.rect(screen, 'green', [150, 20, 300, 100], 3, 5)
+        deal = pygame.draw.rect(virtual_surface, 'white', [150, 20, 300, 100], 0, 5)
+        pygame.draw.rect(virtual_surface, 'green', [150, 20, 300, 100], 3, 5)
         deal_text = font.render('DEAL HAND', True, 'black')
-        screen.blit(deal_text, (165, 50))
+        virtual_surface.blit(deal_text, (165, 50))
         button_list.append(deal)
     # once game started, shot hit and stand buttons and win/loss records
     else:
-        hit = pygame.draw.rect(screen, 'white', [0, 700, 300, 100], 0, 5)
-        pygame.draw.rect(screen, 'green', [0, 700, 300, 100], 3, 5)
+        hit = pygame.draw.rect(virtual_surface, 'white', [0, 700, 300, 100], 0, 5)
+        pygame.draw.rect(virtual_surface, 'green', [0, 700, 300, 100], 3, 5)
         hit_text = font.render('HIT ME', True, 'black')
-        screen.blit(hit_text, (55, 735))
+        virtual_surface.blit(hit_text, (55, 735))
         button_list.append(hit)
         
-        stand = pygame.draw.rect(screen, 'white', [300, 700, 300, 100], 0, 5)
-        pygame.draw.rect(screen, 'green', [300, 700, 300, 100], 3, 5)
+        stand = pygame.draw.rect(virtual_surface, 'white', [300, 700, 300, 100], 0, 5)
+        pygame.draw.rect(virtual_surface, 'green', [300, 700, 300, 100], 3, 5)
         stand_text = font.render('STAND', True, 'black')
-        screen.blit(stand_text, (355, 735))
+        virtual_surface.blit(stand_text, (355, 735))
         button_list.append(stand)
         # a tab is more consistent and display better
         # check colour with client
         score_text = smaller_font.render(f'Wins: {record[0]}    Losses: {record[1]}    Draws: {record[2]}', True, 'white')
         # check scrroe_text position with client
-        screen.blit(score_text, (15, 840))
+        virtual_surface.blit(score_text, (15, 840))
     # if there is an outcome for the hand that was played, display a restart button and tell user what happened
     if result != 0:
-        screen.blit(font.render(results[result], True, 'white'), (15, 25))
-        deal = pygame.draw.rect(screen, 'white', [150, 220, 300, 100], 0, 5)
-        pygame.draw.rect(screen, 'green', [150, 220, 300, 100], 3, 5)
-        pygame.draw.rect(screen, 'black', [153, 223, 294, 94], 3, 5)
+        virtual_surface.blit(font.render(results[result], True, 'white'), (15, 25))
+        deal = pygame.draw.rect(virtual_surface, 'white', [150, 220, 300, 100], 0, 5)
+        pygame.draw.rect(virtual_surface, 'green', [150, 220, 300, 100], 3, 5)
+        pygame.draw.rect(virtual_surface, 'black', [153, 223, 294, 94], 3, 5)
         deal_text = font.render('NEW HAND', True, 'black')
-        screen.blit(deal_text, (165, 250))
+        virtual_surface.blit(deal_text, (165, 250))
         button_list.append(deal)
     return button_list
 
@@ -178,8 +197,19 @@ run = True
 while run:
     # run at framerate (fps) and bg colour
     timer.tick(fps)
-        # check bg colour with client
-    screen.fill('black')
+    ### scalable screen
+    # scaled_background = pygame.transform.scale(background, (VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
+    virtual_surface.blit(background, (0,0))
+
+    window_witdh, window_height = screen.get_size()
+    scale  = min(window_witdh / VIRTUAL_WIDTH, window_height / VIRTUAL_HEIGHT)
+
+    scaled_witdh = int(VIRTUAL_WIDTH * scale)
+    scaled_height= int(VIRTUAL_HEIGHT * scale)
+    offest_x = (window_witdh - scaled_witdh) // 2
+    offset_y = (window_height - scaled_height) // 2
+
+
 
     # initial deal to player and dealer
     if initial_deal:
@@ -247,6 +277,9 @@ while run:
         reveal_dealer = True
 
     outcome, records, add_score = check_endgame(hand_active, dealer_score, player_score, outcome, records, add_score)
-
+    
+    scaled_surface = pygame.transform.smoothscale(virtual_surface, (scaled_witdh, scaled_height))
+    screen.fill((0,0,0))
+    screen.blit(scaled_surface, (offest_x, offset_y))
     pygame.display.flip()
 pygame.quit()
