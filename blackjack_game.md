@@ -3,7 +3,7 @@
 ## Steps taken
 - Created Trello bord for collaboration with M
 - Created test card deck on [Make a deck](https://www.me.uk/cards/makeadeck.cgi)
-- Converted SVG's to PNG's
+- Converted SVGs to PNGs
 - Created (sub)directories for later on
 
 ## Trello
