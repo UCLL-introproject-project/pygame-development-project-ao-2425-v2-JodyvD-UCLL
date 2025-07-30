@@ -11,17 +11,26 @@
 - Pitched ideas to M
 - Got approval from M
 - Created checklist and created cards per item on checklist
-- created demo cards and asked approval from M
+- Created demo cards and asked approval from M
+- Got approval from M
+- Created demo design and asked approval from M
+- Got approval from M
 
 ## Colour codes:
 - Casino velvet green: #4E6A54
 - Casino gold: #CA974A
+- Casino gold brown: #91672F
 - Casino red: #86242A
 - (Card)Black: #0F0F0F
 - Card white (background): #F5F5F5
 - Card red (hearts and diamonds): #FF0000
 - Backside luxury black: #020B13
-- Bakcside luxury gold: #A57A03
+- Backside luxury gold: #A57A03
+- Casino chip red: #852928
+- Casino chip lighter shade red: #e7d4d4
 
-## Card images
+## Design images
 - Created demo cards
+- Created background design in Adobe Illustrator 
+- Created button designs
+- Created card deck in Adobe Illustrator
