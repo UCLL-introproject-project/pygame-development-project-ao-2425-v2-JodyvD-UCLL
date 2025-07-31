@@ -39,6 +39,26 @@ font = pygame.font.Font('freesansbold.ttf', 44)
 smaller_font = pygame.font.Font('freesansbold.ttf', 36)
 
 ### cards
+card_width = 90
+card_height = 135
+card_images = {}
+suits = ['clubs', 'diamonds', 'hearts', 'spades']
+ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k', 'a']
+
+for suit in suits:
+    for rank in ranks:
+        card_code = rank + suit[0]
+        path = f'assets/png_card_deck/{suit}/{card_code}.png'
+        if os.path.exists(path):
+            img = pygame.image.load(path).convert_alpha()
+            card_images[card_code] = img
+        else:
+            print(f'Image not found: {path}')
+
+card_backside = pygame.image.load('assets/png_card_deck/backside.png').convert_alpha()
+
+# #error check
+# print(f"Number of loaded cards: {len(card_images)}")
 
 # cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 # one_deck = 4 * cards
@@ -81,25 +101,53 @@ def draw_scores(player, dealer):
 
 # draw cards visually onto screen
 def draw_cards(player, dealer, reveal):
-    for i in range(len(player)):
-        # check visuals with client
-        pygame.draw.rect(virtual_surface, 'white', [70 + (70 * i), 460 + (5 * i), 120, 220], 0, 5)
-        virtual_surface.blit(font.render(player[i], True, 'black'), (75 + 70 * i, 465 + 5 * i))
-        virtual_surface.blit(font.render(player[i], True, 'black'), (75 + 70 * i, 635 + 5 * i))
-        pygame.draw.rect(virtual_surface, 'red', [70 + (70 * i), 460 + (5 * i), 120, 220], 5, 5)
+    ooverlap_offset = 30
 
-    # if player hasn't finished turn, dealer will hide one card
-    for i in range(len(dealer)):
-        # check visuals with client
-        pygame.draw.rect(virtual_surface, 'white', [70 + (70 * i), 160 + (5 * i), 120, 220], 0, 5)
-        if i != 0 or reveal:
-            virtual_surface.blit(font.render(dealer[i], True, 'black'), (75 + 70 * i, 165 + 5 * i))
-            virtual_surface.blit(font.render(dealer[i], True, 'black'), (75 + 70 * i, 335 + 5 * i))
+    # player hand
+    total_width = (len(player) - 1) * ooverlap_offset + card_width
+    start_x = (VIRTUAL_WIDTH - total_width) // 2
+    y = 600
+
+    for i, card in enumerate(player):
+        card_img = card_images.get(card.lower())
+        if card_img:
+            scaled = pygame.transform.smoothscale(card_img, (card_width, card_height))
+            x = start_x + i * ooverlap_offset
+            virtual_surface.blit(scaled, (x, y))
+
+    # dealer hand
+    total_width = (len(player) - 1) * ooverlap_offset + card_width
+    start_x = (VIRTUAL_WIDTH - total_width) // 2
+    y = 200
+
+    for i, card in enumerate(dealer):
+        if i == 0 and not reveal:
+            card_img = card_backside
         else:
-            # do or do not use '???', check with client
-            virtual_surface.blit(font.render('???', True, 'black'), (75 + 70 * i, 165 + 5 * i))
-            virtual_surface.blit(font.render('???', True, 'black'), (75 + 70 * i, 335 + 5 * i))
-        pygame.draw.rect(virtual_surface, 'blue', [70 + (70 * i), 160 + (5 * i), 120, 220], 5, 5)
+            card_img = card_images.get(card.lower())
+        if card_img:
+            scaled = pygame.transform.smoothscale(card_img, (card_width, card_height))
+            x = start_x + i * ooverlap_offset
+            virtual_surface.blit(scaled, (x, y))
+    # for i in range(len(player)):
+    #     # check visuals with client
+    #     pygame.draw.rect(virtual_surface, 'white', [70 + (70 * i), 460 + (5 * i), 120, 220], 0, 5)
+    #     virtual_surface.blit(font.render(player[i], True, 'black'), (75 + 70 * i, 465 + 5 * i))
+    #     virtual_surface.blit(font.render(player[i], True, 'black'), (75 + 70 * i, 635 + 5 * i))
+    #     pygame.draw.rect(virtual_surface, 'red', [70 + (70 * i), 460 + (5 * i), 120, 220], 5, 5)
+
+    # # if player hasn't finished turn, dealer will hide one card
+    # for i in range(len(dealer)):
+    #     # check visuals with client
+    #     pygame.draw.rect(virtual_surface, 'white', [70 + (70 * i), 160 + (5 * i), 120, 220], 0, 5)
+    #     if i != 0 or reveal:
+    #         virtual_surface.blit(font.render(dealer[i], True, 'black'), (75 + 70 * i, 165 + 5 * i))
+    #         virtual_surface.blit(font.render(dealer[i], True, 'black'), (75 + 70 * i, 335 + 5 * i))
+    #     else:
+    #         # do or do not use '???', check with client
+    #         virtual_surface.blit(font.render('???', True, 'black'), (75 + 70 * i, 165 + 5 * i))
+    #         virtual_surface.blit(font.render('???', True, 'black'), (75 + 70 * i, 335 + 5 * i))
+    #     pygame.draw.rect(virtual_surface, 'blue', [70 + (70 * i), 160 + (5 * i), 120, 220], 5, 5)
 
 # pass in player or dealer hand and get best score possible
 def calculate_score(hand):

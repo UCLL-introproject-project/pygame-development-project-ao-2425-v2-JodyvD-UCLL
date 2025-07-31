@@ -34,3 +34,16 @@
 - Created background design in Adobe Illustrator 
 - Created button designs
 - Created card deck in Adobe Illustrator
+
+## Game adjustments
+### ToDO
+1. Upload background image and make sure it can be used "dynamic"
+2. Upload card deck images and use those
+3. Upload button images and use those
+4. Apply different font families
+5. Add (further) responsiveness
+6. Add sound effects
+7. If possible, add animations
+
+### Done
+* Background image
