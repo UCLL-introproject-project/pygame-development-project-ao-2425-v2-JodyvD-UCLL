@@ -36,7 +36,7 @@
 - Created card deck in Adobe Illustrator
 
 ## Game adjustments
-### ToDO
+### Base ToDOs
 1. Upload background image and make sure it can be used "dynamic"
 2. Upload card deck images and use those
 3. Upload button images and use those
@@ -45,5 +45,14 @@
 6. Add sound effects
 7. If possible, add animations
 
+### Functional ToDOs
+* Game Handling
+
 ### Done
 * Background image
+* Uploaded card deck
+* Uploaded button images
+* Applied different fonts
+
+### Doing
+* Error checking and game handling check/fixes
