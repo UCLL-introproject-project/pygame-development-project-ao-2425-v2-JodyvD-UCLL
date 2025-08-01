@@ -1,74 +1,111 @@
 # imports
 import os
-# import copy
 import random
 import pygame
 
-# game variables
+# CONSTANTS
+VIRTUAL_WIDTH, VIRTUAL_HEIGHT = 600, 900
+FPS = 60
+CHIP_SIZE = (160, 160)
+CARD_WIDTH, CARD_HEIGHT = 130, 190
+BUTTON_Y = 730
+
+# pygame initialization
 pygame.init()
 pygame.font.init()
 # ## geluid
 # pygame.mixer.init()
 
 ### screen
-VIRTUAL_WIDTH = 600
-VIRTUAL_HEIGHT = 900
-
 screen = pygame.display.set_mode((VIRTUAL_WIDTH, VIRTUAL_HEIGHT), pygame.RESIZABLE)
-
     # check name with client
 pygame.display.set_caption("Pygame Blackjack!")
-
 virtual_surface = pygame.Surface((VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
-
-fps = 60
 clock = pygame.time.Clock()
 
 ### background
-background = pygame.transform.scale(pygame.image.load("assets/game_design/background.png").convert(), (VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
+def load_assets():
+        # chip images
+    assets = {}
+    assets["background"] = pygame.transform.scale(pygame.image.load("assets/game_design/background.png").convert(), (VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
+
+    for name in ["play", "quit", "hit", "stand"]:
+        assets[f"chip_{name}"] = pygame.transform.smoothscale(pygame.image.load(f"assets/game_design/chip_{name}.png"), CHIP_SIZE)
+
+        #  fonts
+    assets["font_brawler_bold"] = pygame.font.Font('assets/fonts/Brawler-Bold.ttf', 32)
+    assets["font_brawler_bold_xl"] = pygame.font.Font('assets/fonts/Brawler-Bold.ttf', 64)
+    assets["font_poppins_bold_xl"] = pygame.font.Font('assets/fonts/Poppins-Bold.ttf', 86)
+    assets["font_poppins_bold_larger"] = pygame.font.Font('assets/fonts/Poppins-Bold.ttf', 32)
+    assets["font_poppins_bold_smaller"] = pygame.font.Font('assets/fonts/Poppins-Bold.ttf', 30)
+
+        # text colors
+    assets["label_color"] = pygame.Color('#020B13')
+    assets["value_color"] = pygame.Color('#91672F')
+    assets["scores_color"] = pygame.Color('#CA974A')
+
+        # cards
+    assets["card_images"] = {}
+    suits = ['clubs', 'diamonds', 'hearts', 'spades']
+    ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+    for suit in suits:
+        for rank in ranks:
+            card_code = f"{rank.lower()}{suit[0].lower()}"
+            path = f"assets/png_card_deck/{suit}/{card_code}.png"
+            # error check
+            # print(f"Loading: {card_code} -> {path}")
+            if os.path.exists(path):
+                assets["card_images"][card_code] = pygame.image.load(path).convert_alpha()
+            # error check
+            # else:
+            #     print(f"Image not found: {path}")
+    assets["card_backside"] = pygame.image.load('assets/png_card_deck/backside.png').convert_alpha()
+
+assets = load_assets()
+
+
 
 ### chip images
-chip_size = (120, 120)
-chip_play = pygame.transform.smoothscale(pygame.image.load('assets/game_design/chip_play.png'), chip_size)
-chip_quit = pygame.transform.smoothscale(pygame.image.load('assets/game_design/chip_quit.png'), chip_size)
-chip_hit = pygame.transform.smoothscale(pygame.image.load('assets/game_design/chip_hit.png'), chip_size)
-chip_stand = pygame.transform.smoothscale(pygame.image.load('assets/game_design/chip_stand.png'), chip_size)
+# chip_play = pygame.transform.smoothscale(pygame.image.load('assets/game_design/chip_play.png'), chip_size)
+# chip_quit = pygame.transform.smoothscale(pygame.image.load('assets/game_design/chip_quit.png'), chip_size)
+# chip_hit = pygame.transform.smoothscale(pygame.image.load('assets/game_design/chip_hit.png'), chip_size)
+# chip_stand = pygame.transform.smoothscale(pygame.image.load('assets/game_design/chip_stand.png'), chip_size)
 
 ### fonts
-font_brawler_bold = pygame.font.Font('assets/fonts/Brawler-Bold.ttf', 32)
+# font_brawler_bold = pygame.font.Font('assets/fonts/Brawler-Bold.ttf', 32)
 # font_brawler_regular = pygame.font.Font('assets/fonts/Brawler-Regular.ttf', 32)
-font_poppins_bold_xl = pygame.font.Font('assets/fonts/Poppins-Bold.ttf', 86)
-font_poppins_bold_larger = pygame.font.Font('assets/fonts/Poppins-Bold.ttf', 32)
-font_poppins_bold_smaller = pygame.font.Font('assets/fonts/Poppins-Bold.ttf', 30)
+# font_poppins_bold_xl = pygame.font.Font('assets/fonts/Poppins-Bold.ttf', 86)
+# font_poppins_bold_larger = pygame.font.Font('assets/fonts/Poppins-Bold.ttf', 32)
+# font_poppins_bold_smaller = pygame.font.Font('assets/fonts/Poppins-Bold.ttf', 30)
 # font_poppins_regular = pygame.font.Font('assets/fonts/Poppins-Regular.ttf', 30)
 
 ## text colors
-label_color = pygame.Color('#020B13')
-value_color = pygame.Color('#91672F')
-scores_color = pygame.Color('#CA974A')
+# label_color = pygame.Color('#020B13')
+# value_color = pygame.Color('#91672F')
+# scores_color = pygame.Color('#CA974A')
 
 ### cards
-card_width, card_height = 90, 135
-card_images = {}
-suits = ['clubs', 'diamonds', 'hearts', 'spades']
-ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+# card_width, card_height = 90, 135
+# card_images = {}
+# suits = ['clubs', 'diamonds', 'hearts', 'spades']
+# ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
-card_backside = pygame.image.load('assets/png_card_deck/backside.png').convert_alpha()
+# card_backside = pygame.image.load('assets/png_card_deck/backside.png').convert_alpha()
 
 
-for suit in suits:
-    for rank in ranks:
-        card_code = f"{rank.lower()}{suit[0].lower()}"
-        # card_code = rank.lower() + suit[0].lower()
-        path = f"assets/png_card_deck/{suit}/{card_code}.png"
-        # error check
-        # print(f"Loading: {card_code} -> {path}")
-        if os.path.exists(path):
-            img = pygame.image.load(path).convert_alpha()
-            card_images[card_code] = img
-        # error check
-        else:
-            print(f"Image not found: {path}")
+# for suit in suits:
+#     for rank in ranks:
+#         card_code = f"{rank.lower()}{suit[0].lower()}"
+#         # card_code = rank.lower() + suit[0].lower()
+#         path = f"assets/png_card_deck/{suit}/{card_code}.png"
+#         # error check
+#         # print(f"Loading: {card_code} -> {path}")
+#         if os.path.exists(path):
+#             img = pygame.image.load(path).convert_alpha()
+#             card_images[card_code] = img
+#         # error check
+#         else:
+#             print(f"Image not found: {path}")
 
 # game state
 num_of_decks = 4
