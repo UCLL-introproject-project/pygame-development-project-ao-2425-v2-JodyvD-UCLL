@@ -6,6 +6,7 @@ import pygame
 # CONSTANTS
 VIRTUAL_WIDTH, VIRTUAL_HEIGHT = 600, 900
 FPS = 60
+NUM_OF_DECKS = 4
 CHIP_SIZE = (160, 160)
 CARD_WIDTH, CARD_HEIGHT = 130, 190
 BUTTON_Y = 730
@@ -16,7 +17,7 @@ pygame.font.init()
 # ## geluid
 # pygame.mixer.init()
 
-### screen
+### screen ###
 screen = pygame.display.set_mode((VIRTUAL_WIDTH, VIRTUAL_HEIGHT), pygame.RESIZABLE)
     # check name with client
 pygame.display.set_caption("Pygame Blackjack!")
@@ -27,10 +28,14 @@ clock = pygame.time.Clock()
 def load_assets():
         # chip images
     assets = {}
-    assets["background"] = pygame.transform.scale(pygame.image.load("assets/game_design/background.png").convert(), (VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
+    assets["background"] = pygame.transform.scale(
+        pygame.image.load("assets/game_design/background.png").convert(), (VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
+        )
 
     for name in ["play", "quit", "hit", "stand"]:
-        assets[f"chip_{name}"] = pygame.transform.smoothscale(pygame.image.load(f"assets/game_design/chip_{name}.png"), CHIP_SIZE)
+        assets[f"chip_{name}"] = pygame.transform.smoothscale(
+            pygame.image.load(f"assets/game_design/chip_{name}.png"), CHIP_SIZE
+        )
 
         #  fonts
     assets["font_brawler_bold"] = pygame.font.Font('assets/fonts/Brawler-Bold.ttf', 32)
@@ -61,82 +66,41 @@ def load_assets():
             #     print(f"Image not found: {path}")
     assets["card_backside"] = pygame.image.load('assets/png_card_deck/backside.png').convert_alpha()
 
+    return assets
+
 assets = load_assets()
 
 
-
-### chip images
-# chip_play = pygame.transform.smoothscale(pygame.image.load('assets/game_design/chip_play.png'), chip_size)
-# chip_quit = pygame.transform.smoothscale(pygame.image.load('assets/game_design/chip_quit.png'), chip_size)
-# chip_hit = pygame.transform.smoothscale(pygame.image.load('assets/game_design/chip_hit.png'), chip_size)
-# chip_stand = pygame.transform.smoothscale(pygame.image.load('assets/game_design/chip_stand.png'), chip_size)
-
-### fonts
-# font_brawler_bold = pygame.font.Font('assets/fonts/Brawler-Bold.ttf', 32)
-# font_brawler_regular = pygame.font.Font('assets/fonts/Brawler-Regular.ttf', 32)
-# font_poppins_bold_xl = pygame.font.Font('assets/fonts/Poppins-Bold.ttf', 86)
-# font_poppins_bold_larger = pygame.font.Font('assets/fonts/Poppins-Bold.ttf', 32)
-# font_poppins_bold_smaller = pygame.font.Font('assets/fonts/Poppins-Bold.ttf', 30)
-# font_poppins_regular = pygame.font.Font('assets/fonts/Poppins-Regular.ttf', 30)
-
-## text colors
-# label_color = pygame.Color('#020B13')
-# value_color = pygame.Color('#91672F')
-# scores_color = pygame.Color('#CA974A')
-
-### cards
-# card_width, card_height = 90, 135
-# card_images = {}
-# suits = ['clubs', 'diamonds', 'hearts', 'spades']
-# ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
-
-# card_backside = pygame.image.load('assets/png_card_deck/backside.png').convert_alpha()
-
-
-# for suit in suits:
-#     for rank in ranks:
-#         card_code = f"{rank.lower()}{suit[0].lower()}"
-#         # card_code = rank.lower() + suit[0].lower()
-#         path = f"assets/png_card_deck/{suit}/{card_code}.png"
-#         # error check
-#         # print(f"Loading: {card_code} -> {path}")
-#         if os.path.exists(path):
-#             img = pygame.image.load(path).convert_alpha()
-#             card_images[card_code] = img
-#         # error check
-#         else:
-#             print(f"Image not found: {path}")
-
 # game state
-num_of_decks = 4
-active = False
-    # win, loss, draw/push
-records = [0, 0, 0]
-player_score = 0
-dealer_score = 0
+# num_of_decks = 4  >> turned into constant
+records = [0, 0, 0] # win, loss, draw/push
+results = ["", "YOU'RE BUSTED", "YOU WIN!", "DEALER WINS", "IT'S A DRAW"]
+active = False 
 initial_deal = False
 my_hand = []
 dealer_hand = []
-reveal_dealer = False
 hand_active = False
 outcome = 0
 add_score = False
-results = ["", "YOU'RE BUSTED", "YOU WIN!", "DEALER WINS", "IT'S A DRAW"]
 game_deck = []
+player_score = 0
+dealer_score = 0
+dealer_face_down = True
 
-
-### functions
+    ### functions ###
 def build_deck():
-    return [rank + suit[0].lower() for rank in ranks for suit in suits] * num_of_decks
+    suits = ["clubs", "diamonds", "hearts", "spades"]
+    ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+
+    return [rank + suit[0].lower() for rank in ranks for suit in suits] * NUM_OF_DECKS
 
 # deal cards by selecting randomly from deck, and make function for one card at a time
-def deal_cards(current_hand, current_deck):
+def deal_card(current_hand, current_deck):
     card = random.choice(current_deck)
-        ## trouble shooting check
-    print("Card dealt:", card)
+    # error check
+    # print("Card dealt:", card)
     current_hand.append(card)
     current_deck.remove(card)
-
     # error check
     # if card.lower() not in card_images:
     #     print("WARNING: No image found for card", card.lower())
@@ -150,9 +114,9 @@ def calculate_score(hand):
     aces_count = 0
     for card in hand:
         rank = card[:-1].upper()
-        if rank in ['10', 'J', 'Q', 'K']:
+        if rank in ["10", "J", "Q", "K"]:
             hand_total += 10
-        elif rank == 'A':
+        elif rank == "A":
             hand_total += 11
             aces_count += 1
         else:
@@ -162,254 +126,229 @@ def calculate_score(hand):
         aces_count -= 1
     return hand_total
 
-# draw cards visually onto screen
-def draw_cards(player, dealer, reveal):
-    overlap_offset = 30
-
-    # dealer hand
-    total_width_dealer = (len(dealer) - 1) * overlap_offset + card_width
-    start_x_dealer = (VIRTUAL_WIDTH - total_width_dealer) // 2
-    y_dealer = 180
-    y_player = 580
-
-    for i, card in enumerate(dealer):
-        x = start_x_dealer + i * overlap_offset
-        if i == 0 and not reveal:
-            card_img = card_backside
-        else:
-            card_img = card_images.get(card.lower())
-        if card_img:
-            scaled = pygame.transform.smoothscale(card_img, (card_width, card_height))
-            virtual_surface.blit(scaled, (x, y_dealer))
-            # error check
-            # pygame.draw.rect(virtual_surface, 'red', (x, y_dealer, card_width, card_height))
-
-    # player hand
-    total_width_player = (len(player) - 1) * overlap_offset + card_width
-    start_x_player = (VIRTUAL_WIDTH - total_width_player) // 2
-
-    for i, card in enumerate(player):
-        x = start_x_player + i * overlap_offset
-        card_img = card_images.get(card.lower())
-        if card_img:
-            scaled = pygame.transform.smoothscale(card_img, (card_width, card_height))
-            virtual_surface.blit(scaled, (x, y_player))
-            # error check
-            # pygame.draw.rect(virtual_surface, 'green', (x, y_player, card_width, card_height))
-
-# draw scores for player and dealer on screen
-#  check visuals with client
-def draw_scores(player, dealer):
-    if reveal_dealer:
-        virtual_surface.blit(font_poppins_bold_xl.render(str(dealer), True, scores_color), (460, 190))
-    virtual_surface.blit(font_poppins_bold_xl.render(str(player), True, scores_color), (460, 590))
+# game graphics
+def draw_background():
+    virtual_surface.blit(assets["background"], (0,0))
 
 # score text
 def draw_score_labels(record):
-    # margin_x = 35
-    # top_y = 18
-    # padding = 20
-    # num_sections = 3
-    # section_width = (VIRTUAL_WIDTH - 2 * margin_x) // num_sections
+    labels = ["wins", "losses", "draws"]
+    font_label = assets["font_poppins_bold_larger"]
+    font_value = assets["font_poppins_bold_smaller"]
+    spacing = VIRTUAL_WIDTH // 3
 
-    labels = ['wins', 'losses', 'draws']
+    for i in range(3):
+        label_surface = font_label.render(labels[i], True, assets["label_color"])
+        value_surface = font_value.render(str(record[i]), True, assets["value_color"])
+        center_x = int((i + 0.5) * spacing)
+        y = 36
+        total_width = label_surface.get_width() + 12 + value_surface.get_width()
+        label_x = center_x - total_width // 2
+        value_x = label_x + label_surface.get_width() + 12
+        virtual_surface.blit(label_surface, (label_x, y))
+        virtual_surface.blit(value_surface, (value_x, y))
 
-    for i, label in enumerate(labels):
-        x = 40 + i * 180
-        virtual_surface.blit(font_poppins_bold_larger.render(label, True, label_color), (x, 15))
-        virtual_surface.blit(font_poppins_bold_smaller.render(str(record[i]), True, value_color), (x + 85, 15))
-        # value = record[i]
-
-        # label_surface = font_poppins_bold_larger.render(f'{label}', True, label_color)
-        # value_surface = font_poppins_bold_smaller.render(f'{value}', True, value_color)
-
-        # section_start_x = margin_x + i * section_width
-
-        # label_x = section_start_x
-        # virtual_surface.blit(label_surface, (label_x, top_y))
-
-        # value_x = label_x + label_surface.get_width() + padding
-        # virtual_surface.blit(value_surface, (value_x, top_y))
-
-# game graphics
-def draw_game(act, record, result):
-    button_list = []
+def draw_play_quit_buttons():
     x_left = 60
-    x_right = VIRTUAL_WIDTH - 60 - chip_size[0]
-    y = 730
+    x_right = VIRTUAL_WIDTH - 60 - CHIP_SIZE[0]
+    virtual_surface.blit(assets["chip_play"], (x_left, BUTTON_Y))
+    virtual_surface.blit(assets["chip_quit"], (x_right, BUTTON_Y))
 
-    # initially on startup (not active) only option is to deal new hand
+    return [
+        pygame.Rect(x_left, BUTTON_Y, *CHIP_SIZE),
+        pygame.Rect(x_right, BUTTON_Y, *CHIP_SIZE)
+    ]
 
-    if not active or outcome:
-        virtual_surface.blit(chip_play, (x_left, y))
-        virtual_surface.blit(chip_quit, (x_right, y))
-        button_list += [pygame.Rect(x_left, y, *chip_size), pygame.Rect(x_right, y, *chip_size)]
-    else: 
-        virtual_surface.blit(chip_hit, (x_left, y))
-        virtual_surface.blit(chip_stand, (x_right, y))
-        button_list += [pygame.Rect(x_left, y, *chip_size), pygame.Rect(x_right, y, *chip_size)]
-    if outcome:
-        msg = results[outcome]
-        txt = font_brawler_bold.render(msg, True, value_color)
-        rect = txt.get_rect(center=(VIRTUAL_WIDTH // 2, 400))
+def draw_hit_stand_buttons():
+    x_left = 60
+    x_right = VIRTUAL_WIDTH - 60 - CHIP_SIZE[0]
+    virtual_surface.blit(assets["chip_hit"], (x_left, BUTTON_Y))
+    virtual_surface.blit(assets["chip_stand"], (x_right, BUTTON_Y))
+
+    return [
+        pygame.Rect(x_left, BUTTON_Y, *CHIP_SIZE),
+        pygame.Rect(x_right, BUTTON_Y, *CHIP_SIZE)
+    ]
+
+# draw cards visually onto screen
+def draw_cards(player, dealer, face_down):
+    overlap_offset = 45
+
+    # dealer hand
+    total_width_dealer = (len(dealer) - 1) * overlap_offset + CARD_WIDTH
+    start_x_dealer = (VIRTUAL_WIDTH - total_width_dealer) // 2
+    y_dealer = 170
+
+    for i, card in enumerate(dealer):
+        x = start_x_dealer + i * overlap_offset
+        if i == 0 and face_down:
+            card_img = assets["card_backside"]
+        else:
+            card_img = assets["card_images"].get(card.lower())
+        if card_img:
+            scaled = pygame.transform.smoothscale(card_img, (CARD_WIDTH, CARD_HEIGHT))
+            virtual_surface.blit(scaled, (x, y_dealer))
+            # error check
+            # pygame.draw.rect(virtual_surface, 'red', (x, y_dealer, CARD_WIDTH, card_height))
+
+    # player hand
+    total_width_player = (len(player) - 1) * overlap_offset + CARD_WIDTH
+    start_x_player = (VIRTUAL_WIDTH - total_width_player) // 2
+    y_player = 460
+
+    for i, card in enumerate(player):
+        x = start_x_player + i * overlap_offset
+        card_img = assets["card_images"].get(card.lower())
+        if card_img:
+            scaled = pygame.transform.smoothscale(card_img, (CARD_WIDTH, CARD_HEIGHT))
+            virtual_surface.blit(scaled, (x, y_player))
+            # error check
+            # pygame.draw.rect(virtual_surface, 'green', (x, y_player, CARD_WIDTH, CARD_HEIGHT))
+
+# draw scores for player and dealer on screen
+#  check visuals with client
+def draw_scores(player, dealer, face_down):
+    font_score = assets["font_poppins_bold_xl"]
+    # dealer score
+    if not face_down:
+        y_dealer = 170
+        big_card_height = CARD_HEIGHT
+        x_score_dealer = VIRTUAL_WIDTH // 2 + 180
+        y_score_dealer = y_dealer + big_card_height // 2 - 50
+        virtual_surface.blit(font_score.render(str(dealer), True, assets["scores_color"]), (x_score_dealer, y_score_dealer))
+
+    # player score
+    y_player = 460
+    big_card_height = CARD_HEIGHT
+    x_score_player = VIRTUAL_WIDTH // 2 + 180
+    y_score_player = y_player + big_card_height // 2 - 50
+    virtual_surface.blit(font_score.render(str(player), True, assets["scores_color"]), (x_score_player, y_score_player))
+
+def draw_result_text(result):
+    if result:
+        msg = results[result]
+        font_big = assets["font_brawler_bold_xl"]
+        txt = font_big.render(msg, True, assets["value_color"])
+        rect = txt.get_rect(center=(VIRTUAL_WIDTH // 2, 390))
         virtual_surface.blit(txt, rect)
-    
-    draw_score_labels(record)
-    return button_list
 
-    # if not act:
-    #     virtual_surface.blit(chip_play, (x_left, y))
-    #     virtual_surface.blit(chip_quit, (x_right, y))
-
-    #     button_list.append(pygame.Rect(x_left, y, *chip_size))
-    #     button_list.append(pygame.Rect(x_right, y, *chip_size))
-    # # once game started, shot hit and stand buttons and win/loss records
-    # else:
-    #     virtual_surface.blit(chip_hit, (x_left, y))
-    #     virtual_surface.blit(chip_stand, (x_right, y))
-
-    #     button_list.append(pygame.Rect(x_left, y, *chip_size))
-    #     button_list.append(pygame.Rect(x_right, y, *chip_size))
-
-    # draw_score_labels(record)
-
-    # if result != 0:
-    #     msg = results[result]
-    #     surface = font_brawler_bold.render(msg, True, value_color)
-    #     rect = surface.get_rect(center=(VIRTUAL_WIDTH // 2, 400))
-
-    #     virtual_surface.blit(surface, rect)
-    #     virtual_surface.blit(chip_play, (x_left, y))
-    #     virtual_surface.blit(chip_quit, (x_right, y))
-
-    #     button_list.append(pygame.Rect(x_left, y, *chip_size))
-    #     button_list.append(pygame.Rect(x_right, y, *chip_size))
-    
-    # return button_list
-
-# check endgame conditions function
-# def check_endgame(hand_act, deal_score, play_score, result, totals, add):
-def check_endgame(hand_act, deal_score, play_score, result, totals, add):
+def check_endgame():
     # check end game scenarios is player has stood, busted or blackjacked
     # result 1-player bust, 2-win, 3-loss, 4-push
-    if not hand_act and deal_score >= 17:
+    global outcome, add_score
+    if not hand_active and not dealer_face_down:
         # 1-player bust
-        if play_score > 21:
-            result = 1
+        if player_score > 21:
+            outcome = 1
         # 2-win
-        elif deal_score < play_score <= 21 or deal_score > 21:
-            result = 2
-        # 3-loss
-        elif play_score < deal_score <= 21:
-            result = 3
+        elif dealer_score > 21 or player_score > dealer_score:
+            outcome = 2
+        elif player_score < dealer_score:
+            outcome = 3
         else:
-        # 4-push (tie)
-            result = 4
-        if add:
-        # win[0], loss[1], draw[2]
-            if result in [1, 3]:
-                totals[1] += 1
-            elif result == 2:
-                totals[0] += 1
+            outcome = 4
+        if add_score:
+            if outcome == 1 or outcome == 3:
+                records[1] += 1
+            elif outcome == 2:
+                records[0] += 1
             else:
-                totals[2] += 1
-            add = False
-    return result, totals, add
+                records[2] += 1
+            add_score = False
+
+def start_new_round():
+    global active, initial_deal, outcome, hand_active, add_score, dealer_face_down
+    active = True
+    initial_deal = True
+    outcome = 0
+    hand_active = True
+    add_score = True
+    dealer_face_down = True
 
 # main game loop
 run = True
 
 while run:
-    clock.tick(fps)
+    clock.tick(FPS)
     virtual_surface.fill((0, 0, 0))
-    virtual_surface.blit(background, (0,0))
-        ### scalable screen
-    # scaled_background = pygame.transform.scale(background, (VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
-    
+    draw_background()
+    draw_score_labels(records)
+    buttons = []
 
-    window_witdh, window_height = screen.get_size()
-    scale = min(window_witdh / VIRTUAL_WIDTH, window_height / VIRTUAL_HEIGHT)
-    scaled_surface = pygame.transform.smoothscale(virtual_surface, (int(VIRTUAL_WIDTH * scale), (int(VIRTUAL_HEIGHT * scale))))
-    # scaled_witdh = int(VIRTUAL_WIDTH * scale)
-    # scaled_height= int(VIRTUAL_HEIGHT * scale)
-    offset_x = (window_witdh - scaled_surface.get_width()) // 2
-    offset_y = (window_height - scaled_surface.get_height()) // 2
-    buttons = draw_game(active, records, outcome)
+    if active:
+        player_score = calculate_score(my_hand)
+        draw_cards(my_hand, dealer_hand, dealer_face_down)
+        draw_scores(player_score, dealer_score, dealer_face_down)
+        if hand_active and player_score < 21 and not outcome:
+            buttons = draw_hit_stand_buttons()
+        else: 
+            buttons = draw_play_quit_buttons()
+    else:
+        buttons = draw_play_quit_buttons()
 
-    # initial deal to player and dealer
+    draw_result_text(outcome)
+
+    # initial deal
     if initial_deal:
         my_hand = []
         dealer_hand = []
         game_deck = build_deck()
         for _ in range(2):
-            my_hand, game_deck = deal_cards(my_hand, game_deck)
-            dealer_hand, game_deck = deal_cards(dealer_hand, game_deck)
+            my_hand, game_deck = deal_card(my_hand, game_deck)
+            dealer_hand, game_deck = deal_card(dealer_hand, game_deck)
             ## trouble shooting check
             # print(my_hand, dealer_hand)
         initial_deal = False
-    # once game is activated, and dealt, calculate scores and display cards
-    if active:
-        player_score = calculate_score(my_hand)
-        draw_cards(my_hand, dealer_hand, reveal_dealer)
-        if reveal_dealer:
-            dealer_score = calculate_score(dealer_hand)
-            while calculate_score(dealer_hand) < 17:
-                dealer_hand, game_deck = deal_cards(dealer_hand, game_deck)
-                dealer_score = calculate_score(dealer_hand)
-        draw_scores(player_score, dealer_score)
+        dealer_score = calculate_score(dealer_hand)
+        dealer_face_down = True
+
+    # dealer turn after stand/bust
+    if active and not hand_active and not dealer_face_down and not outcome:
+        dealer_score = calculate_score(dealer_hand)
+        while dealer_score < 17:
+            dealer_hand, game_deck = deal_card(dealer_hand, game_deck)
+            dealer_score = calculate_score(dealer_score)
 
     # event handling, if quit pressed, then exit game
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
         elif event.type == pygame.MOUSEBUTTONUP:
-            if not active:
-                if buttons[0].collidepoint(event.pos):
-                    active = True
-                    initial_deal = True
-                    # game_deck = copy.deepcopy(decks * one_deck)
-                    # my_hand = []
-                    # dealer_hand = []
-                    outcome = 0
-                    hand_active = True
-                    reveal_dealer = False
-                    # outcome = 0
-                    add_score = True
-                elif buttons[1].collidepoint(event.pos):
+            if not active or outcome or (active and not hand_active):
+                if buttons and buttons[0].collidepoint(event.pos):
+                    start_new_round()
+                elif buttons and len(buttons) > 1 and buttons[1].collidepoint(event.pos):
                     run = False
             else:
-                # if player can hit, allow them to draw a card
-                if buttons[0].collidepoint(event.pos) and player_score < 21 and hand_active:
-                    my_hand, game_deck = deal_cards(my_hand, game_deck)
-                # allow player to end turn (stand)
-                elif buttons[1].collidepoint(event.pos):
-                    reveal_dealer = True
+                # hit
+                if buttons and buttons[0].collidepoint(event.pos) and player_score < 21 and hand_active:
+                    my_hand, game_deck = deal_card(my_hand, game_deck)
+                    if dealer_face_down:
+                        dealer_face_down = False
+                # stand
+                elif buttons and len(buttons) > 1 and buttons[1].collidepoint(event.pos) and hand_active: 
                     hand_active = False
-                elif len(buttons) > 2 and buttons[2].collidepoint(event.pos):
-                    if buttons[2].collidepoint(event.pos):
-                        active = True
-                        initial_deal = True
-                        # game_deck = copy.deepcopy(decks * one_deck)
-                        # my_hand = []
-                        # dealer_hand = []
-                        outcome = 0
-                        hand_active = True
-                        reveal_dealer = False
-                        # outcome = 0
-                        add_score = True
-                        # dealer_score = 0
-                        # player_score = 0
+                    if dealer_face_down:
+                        dealer_face_down = False
 
-
-    # if player busts, automatically end turn - treat like a stand
     if hand_active and player_score >= 21:
         hand_active = False
-        reveal_dealer = True
+        if dealer_face_down:
+            dealer_face_down = False
 
-    outcome, records, add_score = check_endgame(hand_active, dealer_score, player_score, outcome, records, add_score)
-    
+    if active and not hand_active and not dealer_face_down and not outcome:
+        dealer_score = calculate_score(dealer_hand)
+        while dealer_score < 17:
+            dealer_hand, game_deck = deal_card(dealer_hand, game_deck)
+            dealer_score = calculate_score(dealer_hand)
 
+    check_endgame()
 
+    window_witdh, window_height = screen.get_size()
+    scale = min(window_witdh / VIRTUAL_WIDTH, window_height / VIRTUAL_HEIGHT)
+    scaled_surface = pygame.transform.smoothscale(virtual_surface, (int(VIRTUAL_WIDTH * scale), (int(VIRTUAL_HEIGHT * scale))))
+    offset_x = (window_witdh - scaled_surface.get_width()) // 2
+    offset_y = (window_height - scaled_surface.get_height()) // 2
     screen.fill((0,0,0))
     screen.blit(scaled_surface, (offset_x, offset_y))
     pygame.display.flip()
