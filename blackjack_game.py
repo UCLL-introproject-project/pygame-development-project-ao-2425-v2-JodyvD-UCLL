@@ -15,7 +15,7 @@ BUTTON_Y = 730
 pygame.init()
 pygame.font.init()
 # ## geluid
-# pygame.mixer.init()
+pygame.mixer.init()
 
 ### screen ###
 screen = pygame.display.set_mode((VIRTUAL_WIDTH, VIRTUAL_HEIGHT), pygame.RESIZABLE)
@@ -70,6 +70,10 @@ def load_assets():
 
 assets = load_assets()
 
+# sound assets
+chip_sound = pygame.mixer.Sound("assets/sounds/poker_chip_sound.mp3")
+card_sound = pygame.mixer.Sound("assets/sounds/card_sound.mp3")
+result_sound = pygame.mixer.Sound("assets/sounds/neutral_notification_ping.mp3")
 
 # game state
 # num_of_decks = 4  >> turned into constant
@@ -104,6 +108,7 @@ def deal_card(current_hand, current_deck):
     # error check
     # if card.lower() not in card_images:
     #     print("WARNING: No image found for card", card.lower())
+    card_sound.play()
 
     return current_hand, current_deck
 
@@ -239,14 +244,17 @@ def check_endgame():
     if not hand_active and not dealer_face_down:
         # 1-player bust
         if player_score > 21:
-            outcome = 1
+            next_outcome = 1
         # 2-win
         elif dealer_score > 21 or player_score > dealer_score:
-            outcome = 2
+            next_outcome = 2
         elif player_score < dealer_score:
-            outcome = 3
+            next_outcome = 3
         else:
             outcome = 4
+        if outcome != next_outcome:
+            result_sound.play()
+        outcome = next_outcome
         if add_score:
             if outcome == 1 or outcome == 3:
                 records[1] += 1
@@ -316,17 +324,21 @@ while run:
         elif event.type == pygame.MOUSEBUTTONUP:
             if not active or outcome or (active and not hand_active):
                 if buttons and buttons[0].collidepoint(event.pos):
+                    chip_sound.play()
                     start_new_round()
                 elif buttons and len(buttons) > 1 and buttons[1].collidepoint(event.pos):
+                    chip_sound.play()
                     run = False
             else:
                 # hit
                 if buttons and buttons[0].collidepoint(event.pos) and player_score < 21 and hand_active:
+                    chip_sound.play()
                     my_hand, game_deck = deal_card(my_hand, game_deck)
                     if dealer_face_down:
                         dealer_face_down = False
                 # stand
                 elif buttons and len(buttons) > 1 and buttons[1].collidepoint(event.pos) and hand_active: 
+                    chip_sound.play()
                     hand_active = False
                     if dealer_face_down:
                         dealer_face_down = False

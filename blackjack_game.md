@@ -54,6 +54,8 @@
 * Uploaded button images
 * Applied different fonts
 * Added responsiveness
+* Added new subdirectory sounds within assets directory
+* Added sounds to sounds directory
 
 
 ### Doing
