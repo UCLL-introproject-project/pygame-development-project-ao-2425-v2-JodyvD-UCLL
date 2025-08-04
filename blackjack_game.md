@@ -53,6 +53,8 @@
 * Uploaded card deck
 * Uploaded button images
 * Applied different fonts
+* Added responsiveness
+
 
 ### Doing
 * Error checking and game handling check/fixes

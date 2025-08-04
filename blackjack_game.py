@@ -177,7 +177,7 @@ def draw_cards(player, dealer, face_down):
     # dealer hand
     total_width_dealer = (len(dealer) - 1) * overlap_offset + CARD_WIDTH
     start_x_dealer = (VIRTUAL_WIDTH - total_width_dealer) // 2
-    y_dealer = 170
+    y_dealer = 180
 
     for i, card in enumerate(dealer):
         x = start_x_dealer + i * overlap_offset
@@ -194,7 +194,7 @@ def draw_cards(player, dealer, face_down):
     # player hand
     total_width_player = (len(player) - 1) * overlap_offset + CARD_WIDTH
     start_x_player = (VIRTUAL_WIDTH - total_width_player) // 2
-    y_player = 460
+    y_player = 470
 
     for i, card in enumerate(player):
         x = start_x_player + i * overlap_offset
@@ -211,14 +211,14 @@ def draw_scores(player, dealer, face_down):
     font_score = assets["font_poppins_bold_xl"]
     # dealer score
     if not face_down:
-        y_dealer = 170
+        y_dealer = 180
         big_card_height = CARD_HEIGHT
         x_score_dealer = VIRTUAL_WIDTH // 2 + 180
         y_score_dealer = y_dealer + big_card_height // 2 - 50
         virtual_surface.blit(font_score.render(str(dealer), True, assets["scores_color"]), (x_score_dealer, y_score_dealer))
 
     # player score
-    y_player = 460
+    y_player = 470
     big_card_height = CARD_HEIGHT
     x_score_player = VIRTUAL_WIDTH // 2 + 180
     y_score_player = y_player + big_card_height // 2 - 50
@@ -229,7 +229,7 @@ def draw_result_text(result):
         msg = results[result]
         font_big = assets["font_brawler_bold_xl"]
         txt = font_big.render(msg, True, assets["value_color"])
-        rect = txt.get_rect(center=(VIRTUAL_WIDTH // 2, 390))
+        rect = txt.get_rect(center=(VIRTUAL_WIDTH // 2, 420))
         virtual_surface.blit(txt, rect)
 
 def check_endgame():
