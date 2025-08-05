@@ -15,6 +15,13 @@
 - Got approval from M
 - Created demo design and asked approval from M
 - Got approval from M
+- Added sound samples and asked for approval from M
+- Got approval from M
+- Processed all changes (with approval of M)
+- New name game: "Jacked Black"
+- Put .exe file Trello in board for approval
+- Received approval from M and feedback
+- Board can be closed 
 
 ## Colour codes:
 - Casino velvet green: #4E6A54
@@ -43,10 +50,10 @@
 4. Apply different font families
 5. Add (further) responsiveness
 6. Add sound effects
-7. If possible, add animations
+7. If possible, add animations > Agreed to not do this
 
 ### Functional ToDOs
-* Game Handling
+* Game Handling > DONE
 
 ### Done
 * Background image
@@ -56,7 +63,9 @@
 * Added responsiveness
 * Added new subdirectory sounds within assets directory
 * Added sounds to sounds directory
+* Error handling and bugfixes completed
+* Created .exe file
 
 
 ### Doing
-* Error checking and game handling check/fixes
+* Error checking and game handling check/fixes > DONE

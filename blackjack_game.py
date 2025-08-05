@@ -20,7 +20,7 @@ pygame.mixer.init()
 ### screen ###
 screen = pygame.display.set_mode((VIRTUAL_WIDTH, VIRTUAL_HEIGHT), pygame.RESIZABLE)
     # check name with client
-pygame.display.set_caption("Pygame Blackjack!")
+pygame.display.set_caption("Jacked Black")
 virtual_surface = pygame.Surface((VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
 clock = pygame.time.Clock()
 
@@ -315,7 +315,7 @@ while run:
         dealer_score = calculate_score(dealer_hand)
         while dealer_score < 17:
             dealer_hand, game_deck = deal_card(dealer_hand, game_deck)
-            dealer_score = calculate_score(dealer_score)
+            dealer_score = calculate_score(dealer_hand)
 
     # event handling, if quit pressed, then exit game
     for event in pygame.event.get():
